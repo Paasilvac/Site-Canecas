@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P&I Criações - Canecas Geek</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body id="top" class="font-body">
+
+<header class="site-header">
+  <div class="container header-grid">
+    <a href="#" class="logo">P&I Criações</a>
+    <nav>
+      <a href="#top" class="nav-link">Início</a>
+      <a href="#produtos" class="nav-link">Produtos</a>
+      <a href="#cart" class="nav-link">Carrinho</a>
+    </nav>
+    <button onclick="openCart()" class="cart-button">Carrinho <span id="cartCount">0</span></button>
+  </div>
+</header>
+
+<!-- HERO -->
+<!-- HERO SECTION -->
+<section class="hero">
+
+  <div class="container grid">
+
+    <div>
+      <p class="tag" style="font-size: 30px;">🚀 CANECAS GEEK PERSONALIZADAS</p>
+
+      <h1>
+        Seja único no seu universo geek!
+      </h1>
+
+      <p class="desc">
+        Personalize sua caneca com temas de Séries, Filmes da Marvel, DC, jogos e muito mais.
+      </p>
+
+      <div class="buttons">
+        <button onclick="scrollToProducts()" class="btn-main">Ver Canecas</button>
+        <button onclick="openCart()" class="btn-main">Ver Carrinho</button>
+      </div>
+    </div>
+
+    <!-- ANIMAÇÃO -->
+    <div class="hero-right">
+
+      <div class="anim-float">
+        <svg width="600" height="220" viewBox="0 0 280 260">
+
+          <rect x="40" y="50" width="160" height="180" rx="20"
+            fill="#1a1a2e" stroke="#ff6b6b" stroke-width="4"/>
+
+          <rect x="60" y="80" width="120" height="80" rx="10"
+            fill="#ff6b6b" opacity=".15"/>
+
+          <text x="120" y="130" text-anchor="middle"
+            font-size="22" font-weight="bold"
+            fill="#ff6b6b">
+            GEEK
+          </text>
+
+          <path d="M200 100 C240 100 260 130 260 160 C260 190 240 210 200 210"
+            stroke="#ff6b6b" stroke-width="4" fill="none"/>
+
+        </svg>
+      </div>
+
+      <div class="badge">★★★★★ +1000 geeks felizes</div>
+
+    </div>
+
+  </div>
+</section>
+
+<section class="features">
+  <div class="container feature-grid">
+    <div class="feature-card">
+      <strong>Frete rápido</strong>
+      <p>Envio rápido para todo o Brasil com embalagem segura.</p>
+    </div>
+    <div class="feature-card">
+      <strong>Design exclusivo</strong>
+      <p>Canecas criativas com temas geeks que você ama.</p>
+    </div>
+    <div class="feature-card">
+      <strong>Atendimento VIP</strong>
+      <p>Peça via WhatsApp e receba suporte imediato.</p>
+    </div>
+  </div>
+</section>
+
+#produtos
+<section id="produtos" class="products">
+
+  <h2>Nossas Canecas Geek</h2>
+
+  <div class="grid">
+
+    <div class="card">
+      <img src="img/download.webp" alt="Caneca Séries" style="width:100%; height:150px; object-fit:cover; border-radius:10px; margin-bottom:10px;">
+      <h3>Caneca Séries</h3>
+      <p>Personalize com sua série preferida.</p>
+      <p class="price">R$ 45</p>
+      <button onclick="addToCart('Caneca Séries',45)">Adicionar</button>
+    </div>
+
+    <div class="card">
+      <img src="img/marvel" alt="Caneca Marvel" style="width:100%; height:150px; object-fit:cover; border-radius:10px; margin-bottom:10px;">
+      <h3>Caneca Marvel</h3>
+      <p>Heróis, Heroínas e vilões em uma caneca.</p>
+      <p class="price">R$ 45</p>
+      <button onclick="addToCart('Caneca Marvel',45)">Adicionar</button>
+    </div>
+
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1556438064-2d7646166914?w=300&h=200&fit=crop" alt="Caneca Games" style="width:100%; height:150px; object-fit:cover; border-radius:10px; margin-bottom:10px;">
+      <h3>Caneca Games</h3>
+      <p>Mario, Zelda, Pokémon e mais.</p>
+      <p class="price">R$ 45</p>
+      <button onclick="addToCart('Caneca Games',45)">Adicionar</button>
+    </div>
+
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1621351183012-e2f9972dd9bf?w=300&h=200&fit=crop" alt="Caneca Harry Potter" style="width:100%; height:150px; object-fit:cover; border-radius:10px; margin-bottom:10px;">
+      <h3>Caneca Harry Potter</h3>
+      <p>Feitiços e magia na sua caneca.</p>
+      <p class="price">R$ 45</p>
+      <button onclick="addToCart('Caneca Harry Potter',45)">Adicionar</button>
+    </div>
+
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop" alt="Caneca DC Comics" style="width:100%; height:150px; object-fit:cover; border-radius:10px; margin-bottom:10px;">
+      <h3>Caneca DC Comics</h3>
+      <p>Batman, Superman e Justice League.</p>
+      <p class="price">R$ 45</p>
+      <button onclick="addToCart('Caneca DC Comics',45)">Adicionar</button>
+    </div>
+
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=300&h=200&fit=crop" alt="Caneca Personalizada" style="width:100%; height:150px; object-fit:cover; border-radius:10px; margin-bottom:10px;">
+      <h3>Caneca Personalizada</h3>
+      <p>Mante sua ideia Personalizada. Adicione ao carrinho, envie seus dados e entraremos em contato.</p>
+      <p class="price">R$ 50</p>
+      <button onclick="addToCart('Caneca Personalizada',50)">Adicionar</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- CARRINHO -->
+<section class="cart">
+
+  <h2>Seu Carrinho 🛒</h2>
+
+  <div id="cart"></div>
+
+  <p id="total">Total: R$ 0</p>
+
+  <button onclick="openCheckout()" class="btn-main">
+    Finalizar pedido
+  </button>
+
+</section>
+
+<!-- MODAL -->
+<div id="modal" class="modal hidden">
+
+  <div class="modal-box">
+
+    <h3>Finalizar seu pedido geek</h3>
+
+    <input id="name" placeholder="Nome">
+    <input id="phone" placeholder="WhatsApp">
+
+    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+      <button onclick="closeModal()" style="background: #666; color: #fff; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer;">
+        Voltar
+      </button>
+      <button onclick="sendWhats()" class="btn-main">
+        Enviar pedido
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
+
+<!-- FOOTER -->
+<footer style="background: #0f0f23; padding: 20px; text-align: center; color: #ccc;">
+  <p>&copy; 2026 P&I Criacoes - Canecas personalizadas.</p>
+  <p>Entre em contato: peicanecas@geekmugs.com</p>
+</footer>
