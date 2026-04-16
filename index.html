@@ -22,6 +22,7 @@
       <a href="#top" class="nav-link">Início</a>
       <a href="#produtos" class="nav-link">Produtos</a>
       <a href="#cart" class="nav-link">Carrinho</a>
+      <a href="#checkoutSection" class="nav-link" onclick="openCheckout()">Checkout</a>
     </nav>
     <button onclick="openCart()" class="cart-button">Carrinho <span id="cartCount">0</span></button>
   </div>
@@ -160,40 +161,70 @@
   <p id="total">Total: R$ 0</p>
 
   <button onclick="openCheckout()" class="btn-main">
-    Finalizar pedido
+    Abrir formulário de pedido
   </button>
 
 </section>
 
-<!-- MODAL -->
-<div id="modal" class="modal hidden">
+<section id="checkoutSection" class="checkout hidden">
+  <div class="container checkout-container">
+    <div class="checkout-card">
+      <h2>Peça sua caneca</h2>
+      <p class="checkout-subtitle">Preencha seus dados e fale com a gente pelo WhatsApp para finalizar seu pedido.</p>
 
-  <div class="modal-box">
+      <form id="checkoutForm" novalidate>
+        <div class="checkout-grid">
+          <div class="field full-width">
+            <label for="fullName">Nome completo</label>
+            <input id="fullName" name="fullName" type="text" required autocomplete="name" placeholder="Digite seu nome completo">
+          </div>
 
-    <h3>Finalizar seu pedido geek</h3>
+          <div class="field">
+            <label for="phone">Telefone</label>
+            <input id="phone" name="phone" type="tel" required autocomplete="tel" placeholder="(11) 98888-7777" maxlength="15">
+          </div>
 
-    <input id="name" placeholder="Nome">
-    <input id="phone" placeholder="WhatsApp">
+          <div class="field full-width">
+            <label for="address">Endereço</label>
+            <input id="address" name="address" type="text" required autocomplete="street-address" placeholder="Rua, avenida, etc.">
+          </div>
 
-    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-      <button onclick="closeModal()" style="background: #666; color: #fff; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer;">
-        Voltar
-      </button>
-      <button onclick="sendWhats()" class="btn-main">
-        Enviar pedido
-      </button>
+          <div class="field">
+            <label for="number">Número</label>
+            <input id="number" name="number" type="text" required placeholder="Ex: 123">
+          </div>
+
+          <div class="field">
+            <label for="complement">Complemento (opcional)</label>
+            <input id="complement" name="complement" type="text" placeholder="Apartamento, bloco, referência">
+          </div>
+
+          <div class="field">
+            <label for="quantity">Quantidade</label>
+            <input id="quantity" name="quantity" type="number" min="1" required>
+          </div>
+
+          <div class="field full-width">
+            <label for="notes">Observações (opcional)</label>
+            <textarea id="notes" name="notes" rows="4" placeholder="Ex: embalagem para presente, horário de entrega, etc."></textarea>
+          </div>
+        </div>
+
+        <p id="checkoutMessage" class="checkout-message" aria-live="polite"></p>
+
+        <button id="checkoutSubmit" type="submit" class="btn-main checkout-submit">Fazer pedido pelo WhatsApp</button>
+      </form>
     </div>
-
   </div>
 
-</div>
-
-<script src="script.js"></script>
-</body>
-</html>
+</section>
 
 <!-- FOOTER -->
 <footer style="background: #0f0f23; padding: 20px; text-align: center; color: #ccc;">
   <p>&copy; 2026 P&I Criacoes - Canecas personalizadas.</p>
   <p>Entre em contato: peicanecas@geekmugs.com</p>
 </footer>
+
+<script src="script.js"></script>
+</body>
+</html>

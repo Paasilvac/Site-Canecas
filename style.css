@@ -262,6 +262,135 @@ body {
   border-top: 1px solid rgba(255,255,255,0.08);
 }
 
+.checkout {
+  padding: 56px 20px 80px;
+  background: linear-gradient(180deg, #0f0f23 0%, #11162b 100%);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.checkout-container {
+  display: flex;
+  justify-content: center;
+}
+
+.checkout-card {
+  width: 100%;
+  max-width: 760px;
+  background: #161a30;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  padding: 36px;
+}
+
+.checkout-card h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 40px;
+  line-height: 1.25;
+}
+
+.checkout-subtitle {
+  margin: 14px 0 28px;
+  color: #d8deff;
+  font-size: 22px;
+  line-height: 1.5;
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field label {
+  color: #f4f6ff;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  min-height: 58px;
+  border: 2px solid #6671a8;
+  border-radius: 14px;
+  background: #0d1228;
+  color: #fff;
+  padding: 14px 16px;
+  font-size: 22px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #8f97bd;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.28);
+}
+
+.field input.invalid,
+.field textarea.invalid {
+  border-color: #ff4d6d;
+  box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.18);
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.checkout-message {
+  min-height: 32px;
+  margin: 16px 0 12px;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.checkout-message.info {
+  color: #87b3ff;
+}
+
+.checkout-message.success {
+  color: #91e6a7;
+}
+
+.checkout-message.error {
+  color: #ff9db0;
+}
+
+.checkout-submit {
+  width: 100%;
+  margin-top: 10px;
+  min-height: 64px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  border-radius: 14px;
+}
+
+.checkout-submit:disabled {
+  background: #9c5454;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
 .cart h2 {
   color: #ccc;
   margin-bottom: 30px;
@@ -371,6 +500,91 @@ body {
 
 .hidden {
   display:none;
+}
+
+@media (max-width: 900px) {
+  .header-grid {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .hero {
+    padding: 20px 20px 40px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .hero-title {
+    font-size: 42px;
+    margin-bottom: 28px;
+  }
+
+  .desc {
+    margin-bottom: 30px;
+    font-size: 18px;
+  }
+
+  .checkout-card {
+    padding: 24px;
+  }
+
+  .checkout-card h2 {
+    font-size: 34px;
+  }
+
+  .checkout-subtitle {
+    font-size: 20px;
+  }
+
+  .field label {
+    font-size: 20px;
+  }
+
+  .field input,
+  .field textarea {
+    font-size: 20px;
+  }
+
+  .checkout-submit {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 520px) {
+  .products .grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .card {
+    padding: 24px;
+  }
+
+  .checkout-card h2 {
+    font-size: 28px;
+  }
+
+  .checkout-subtitle {
+    font-size: 18px;
+  }
+
+  .field label {
+    font-size: 18px;
+  }
+
+  .field input,
+  .field textarea {
+    font-size: 18px;
+  }
+
+  .checkout-submit {
+    min-height: 58px;
+    font-size: 20px;
+  }
 }
 
 @keyframes float {
