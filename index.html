@@ -22,7 +22,6 @@
       <a href="#top" class="nav-link">Início</a>
       <a href="#produtos" class="nav-link">Produtos</a>
       <a href="#cart" class="nav-link">Carrinho</a>
-      <a href="#checkoutSection" class="nav-link" onclick="openCheckout()">Checkout</a>
     </nav>
     <button onclick="openCart()" class="cart-button">Carrinho <span id="cartCount">0</span></button>
   </div>
@@ -158,10 +157,12 @@
 
   <div id="cart"></div>
 
+  <p id="cartMessage" class="checkout-message" aria-live="polite"></p>
+
   <p id="total">Total: R$ 0</p>
 
   <button onclick="openCheckout()" class="btn-main">
-    Abrir formulário de pedido
+    Finalizar Compra
   </button>
 
 </section>

@@ -64,6 +64,12 @@ function renderCart() {
 
   if (cart.length === 0) {
     el.innerHTML = '<p class="cart-empty">Seu carrinho está vazio. Adicione uma caneca para continuar.</p>';
+    const checkoutSection = document.getElementById("checkoutSection");
+    if (checkoutSection) {
+      checkoutSection.classList.add("hidden");
+    }
+  } else {
+    setCartMessage("", "");
   }
 
   cart.forEach(item => {
@@ -103,6 +109,13 @@ function syncCheckoutQuantity() {
 }
 
 function openCheckout() {
+  if (getCartQuantity() === 0) {
+    setCartMessage("Adicione pelo menos uma caneca ao carrinho para finalizar a compra.", "error");
+    openCart();
+    return;
+  }
+
+  setCartMessage("", "");
   const checkoutSection = document.getElementById("checkoutSection");
   checkoutSection.classList.remove("hidden");
   if (!document.getElementById("quantity").value) {
@@ -114,6 +127,19 @@ function openCheckout() {
 
 function setCheckoutMessage(text, type) {
   const msgEl = document.getElementById("checkoutMessage");
+  msgEl.className = "checkout-message";
+  if (type) {
+    msgEl.classList.add(type);
+  }
+  msgEl.textContent = text;
+}
+
+function setCartMessage(text, type) {
+  const msgEl = document.getElementById("cartMessage");
+  if (!msgEl) {
+    return;
+  }
+
   msgEl.className = "checkout-message";
   if (type) {
     msgEl.classList.add(type);
