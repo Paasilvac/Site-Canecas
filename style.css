@@ -199,6 +199,14 @@ body {
   margin-bottom: 40px;
 }
 
+.products-note {
+  max-width: 1000px;
+  margin: -16px auto 32px;
+  color: #d6daf2;
+  text-align: center;
+  font-size: 18px;
+}
+
 .card {
   padding: 40px;
   border: 1px solid #333;
@@ -297,6 +305,57 @@ body {
   line-height: 1.5;
 }
 
+.selected-product {
+  margin: 0 0 24px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(145, 230, 167, 0.35);
+  background: rgba(145, 230, 167, 0.08);
+  color: #d5ffe0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.selected-product p {
+  margin: 0;
+}
+
+.selected-product p + p {
+  margin-top: 8px;
+}
+
+.clear-order {
+  margin-top: 16px;
+  width: 100%;
+  min-height: 56px;
+  border-color: rgba(255,255,255,0.22);
+}
+
+.order-summary {
+  margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: #11131f;
+}
+
+.order-summary-title {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.order-summary-line {
+  margin: 0;
+  color: #d6daf2;
+  font-size: 18px;
+}
+
+.order-summary-line + .order-summary-line {
+  margin-top: 6px;
+}
+
 .checkout-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -316,6 +375,7 @@ body {
 }
 
 .field input,
+.field select,
 .field textarea {
   width: 100%;
   min-height: 58px;
@@ -340,6 +400,7 @@ body {
 }
 
 .field input:focus,
+.field select:focus,
 .field textarea:focus {
   outline: none;
   border-color: #ffffff;
@@ -350,6 +411,54 @@ body {
 .field textarea.invalid {
   border-color: #ff4d6d;
   box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.18);
+}
+
+.field input[readonly] {
+  background: #121935;
+  border-color: #7a86be;
+  color: #d5dcff;
+  cursor: default;
+  font-weight: 700;
+}
+
+.quantity-picker {
+  display: grid;
+  grid-template-columns: 64px 1fr 64px;
+  gap: 10px;
+  align-items: center;
+}
+
+.quantity-picker.invalid #quantity {
+  border-color: #ff4d6d;
+  box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.18);
+}
+
+.quantity-button {
+  min-height: 58px;
+  border: none;
+  border-radius: 14px;
+  background: #ff6b6b;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.quantity-button:hover {
+  background: #ff5252;
+  transform: translateY(-1px);
+}
+
+.quantity-button:disabled {
+  background: #7f4a4a;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.field select {
+  appearance: none;
+  cursor: pointer;
 }
 
 .full-width {
@@ -540,6 +649,22 @@ body {
     font-size: 20px;
   }
 
+  .selected-product {
+    font-size: 18px;
+  }
+
+  .clear-order {
+    min-height: 52px;
+  }
+
+  .order-summary-title {
+    font-size: 20px;
+  }
+
+  .order-summary-line {
+    font-size: 17px;
+  }
+
   .field label {
     font-size: 20px;
   }
@@ -547,6 +672,10 @@ body {
   .field input,
   .field textarea {
     font-size: 20px;
+  }
+
+  .quantity-picker {
+    grid-template-columns: 56px 1fr 56px;
   }
 
   .checkout-submit {
@@ -564,12 +693,33 @@ body {
     padding: 24px;
   }
 
+  .products-note {
+    font-size: 16px;
+    margin: -12px auto 24px;
+  }
+
   .checkout-card h2 {
     font-size: 28px;
   }
 
   .checkout-subtitle {
     font-size: 18px;
+  }
+
+  .selected-product {
+    font-size: 17px;
+  }
+
+  .clear-order {
+    min-height: 50px;
+  }
+
+  .order-summary-title {
+    font-size: 18px;
+  }
+
+  .order-summary-line {
+    font-size: 16px;
   }
 
   .field label {
@@ -579,6 +729,14 @@ body {
   .field input,
   .field textarea {
     font-size: 18px;
+  }
+
+  .quantity-picker {
+    grid-template-columns: 52px 1fr 52px;
+  }
+
+  .quantity-button {
+    font-size: 26px;
   }
 
   .checkout-submit {

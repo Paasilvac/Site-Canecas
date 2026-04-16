@@ -21,9 +21,9 @@
     <nav>
       <a href="#top" class="nav-link">Início</a>
       <a href="#produtos" class="nav-link">Produtos</a>
-      <a href="#cart" class="nav-link">Carrinho</a>
+      <a href="#cart" class="nav-link">Pedido</a>
     </nav>
-    <button onclick="openCart()" class="cart-button">Carrinho <span id="cartCount">0</span></button>
+    <button onclick="openCart()" class="cart-button">Pedido <span id="cartCount">0</span></button>
   </div>
 </header>
 
@@ -43,7 +43,7 @@
 
       <div class="buttons">
         <button onclick="scrollToProducts()" class="btn-main">Ver Canecas</button>
-        <button onclick="openCart()" class="btn-main">Ver Carrinho</button>
+        <button onclick="openCart()" class="btn-main">Ver Pedido</button>
       </div>
     </div>
 
@@ -81,8 +81,6 @@
 <section class="features">
   <div class="container feature-grid">
     <div class="feature-card">
-      
-    <div class="feature-card">
       <strong>Design exclusivo</strong>
       <p>Canecas criativas com temas geeks que você ama.</p>
     </div>
@@ -96,6 +94,7 @@
 <section id="produtos" class="products">
 
   <h2>Nossas Canecas Geek</h2>
+  <p class="products-note">Cada produto pode ser pedido com até 3 unidades ao finalizar a compra.</p>
 
   <div class="grid">
 
@@ -104,7 +103,7 @@
       <h3>Caneca Séries</h3>
       <p>Personalize com sua série preferida.</p>
       <p class="price">R$ 45</p>
-      <button onclick="addToCart('Caneca Séries',45)">Adicionar</button>
+      <button onclick="selectProduct('Caneca Séries',45)">Adicionar</button>
     </div>
 
     <div class="card">
@@ -112,7 +111,7 @@
       <h3>Caneca Marvel</h3>
       <p>Heróis, Heroínas e vilões em uma caneca.</p>
       <p class="price">R$ 45</p>
-      <button onclick="addToCart('Caneca Marvel',45)">Adicionar</button>
+      <button onclick="selectProduct('Caneca Marvel',45)">Adicionar</button>
     </div>
 
     <div class="card">
@@ -120,7 +119,7 @@
       <h3>Caneca Games</h3>
       <p>Mario, Zelda, Pokémon e mais.</p>
       <p class="price">R$ 45</p>
-      <button onclick="addToCart('Caneca Games',45)">Adicionar</button>
+      <button onclick="selectProduct('Caneca Games',45)">Adicionar</button>
     </div>
 
     <div class="card">
@@ -128,7 +127,7 @@
       <h3>Caneca Harry Potter</h3>
       <p>Feitiços e magia na sua caneca.</p>
       <p class="price">R$ 45</p>
-      <button onclick="addToCart('Caneca Harry Potter',45)">Adicionar</button>
+      <button onclick="selectProduct('Caneca Harry Potter',45)">Adicionar</button>
     </div>
 
     <div class="card">
@@ -136,33 +135,37 @@
       <h3>Caneca DC Comics</h3>
       <p>Batman, Superman e Justice League.</p>
       <p class="price">R$ 45</p>
-      <button onclick="addToCart('Caneca DC Comics',45)">Adicionar</button>
+      <button onclick="selectProduct('Caneca DC Comics',45)">Adicionar</button>
     </div>
 
     <div class="card">
       <img src="img/sua ideia.png" alt="Caneca Personalizada" style="width:100%; height: 300px; object-fit:cover; border-radius:10px; margin-bottom:10px;">
       <h3>Caneca Personalizada</h3>
-      <p>Aqui você que decide. Adicione ao Carrinho, entraremos em contato.</p>
+      <p>Aqui você decide a arte. Adicione ao pedido e finalize normalmente.</p>
       <p class="price">R$ 50</p>
-      <button onclick="addToCart('Caneca Personalizada',50)">Adicionar</button>
+      <button onclick="selectProduct('Caneca Personalizada',50)">Adicionar</button>
     </div>
 
   </div>
 </section>
 
-<!-- CARRINHO -->
-<section class="cart">
+<!-- PEDIDO -->
+<section id="cart" class="cart">
 
-  <h2>Seu Carrinho 🛒</h2>
+  <h2>Seu Pedido</h2>
 
-  <div id="cart"></div>
+  <div id="orderSummary" class="order-summary"></div>
+
+  <button id="clearOrderButton" type="button" class="btn-secondary clear-order hidden" onclick="clearOrder()">
+    Excluir pedido escolhido
+  </button>
 
   <p id="cartMessage" class="checkout-message" aria-live="polite"></p>
 
   <p id="total">Total: R$ 0</p>
 
   <button onclick="openCheckout()" class="btn-main">
-    Finalizar Compra
+    Ir para o checkout
   </button>
 
 </section>
@@ -171,7 +174,17 @@
   <div class="container checkout-container">
     <div class="checkout-card">
       <h2>Peça sua caneca</h2>
-      <p class="checkout-subtitle">Preencha seus dados e fale com a gente pelo WhatsApp para finalizar seu pedido.</p>
+      <p class="checkout-subtitle">Preencha seus dados para enviar o pedido automaticamente, escolhendo de 1 até 3 unidades do produto.</p>
+
+      <div id="selectedProductInfo" class="selected-product" aria-live="polite">
+        <p id="selectedProductName">Produto selecionado: nenhum</p>
+        <p id="selectedProductPrice">Preço unitário: R$ 0</p>
+        <p id="selectedProductQuantity">Quantidade escolhida: 1 unidade</p>
+        <p id="selectedProductTotal">Total final: R$ 0</p>
+        <button id="clearCheckoutOrderButton" type="button" class="btn-secondary clear-order hidden" onclick="clearOrder()">
+          Trocar produto
+        </button>
+      </div>
 
       <form id="checkoutForm" novalidate>
         <div class="checkout-grid">
@@ -202,7 +215,16 @@
 
           <div class="field">
             <label for="quantity">Quantidade</label>
-            <input id="quantity" name="quantity" type="number" min="1" required>
+            <div id="quantityPicker" class="quantity-picker">
+              <button type="button" id="decreaseQuantityButton" class="quantity-button" onclick="decreaseQuantity()" aria-label="Diminuir quantidade">-</button>
+              <input id="quantity" name="quantity" type="text" value="1 unidade" readonly aria-readonly="true">
+              <button type="button" id="increaseQuantityButton" class="quantity-button" onclick="increaseQuantity()" aria-label="Aumentar quantidade">+</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="checkoutTotal">Total final</label>
+            <input id="checkoutTotal" name="checkoutTotal" type="text" value="R$ 0" readonly aria-readonly="true">
           </div>
 
           <div class="field full-width">
@@ -213,7 +235,7 @@
 
         <p id="checkoutMessage" class="checkout-message" aria-live="polite"></p>
 
-        <button id="checkoutSubmit" type="submit" class="btn-main checkout-submit">Fazer pedido pelo WhatsApp</button>
+        <button id="checkoutSubmit" type="submit" class="btn-main checkout-submit">Finalizar pedido</button>
       </form>
     </div>
   </div>
