@@ -11,9 +11,16 @@ const linksPagamento = {
 
 const selectedProductStorageKey = "selectedMugProduct";
 const selectedQuantityStorageKey = "selectedMugQuantity";
+const cartItemsStorageKey = "selectedMugCartItems";
 
 let selectedProduct = loadSelectedProduct();
 let selectedQuantity = loadSelectedQuantity();
+let cartItems = loadCartItems();
+
+if (!selectedProduct && cartItems.length > 0) {
+  const lastItem = cartItems[cartItems.length - 1];
+  selectedProduct = { name: lastItem.name, price: lastItem.price };
+}
 
 function formatCurrency(value) {
   return value.toLocaleString("pt-BR", {
@@ -23,19 +30,23 @@ function formatCurrency(value) {
 }
 
 function isValidQuantity(quantity) {
-  return [1, 2, 3].includes(quantity);
+  return Number.isInteger(quantity) && quantity >= 1;
 }
 
 function getCartQuantity() {
-  return selectedProduct ? selectedQuantity : 0;
+  return cartItems.reduce((total, item) => total + item.quantity, 0);
 }
 
 function getCartTotal() {
-  if (!selectedProduct) {
+  return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+}
+
+function getCheckoutTotal() {
+  if (cartItems.length === 0) {
     return 0;
   }
 
-  return selectedProduct.price * selectedQuantity;
+  return getCartTotal();
 }
 
 function loadSelectedProduct() {
@@ -50,6 +61,157 @@ function loadSelectedProduct() {
 function loadSelectedQuantity() {
   const saved = parseInt(localStorage.getItem(selectedQuantityStorageKey), 10);
   return isValidQuantity(saved) ? saved : 1;
+}
+
+function loadCartItems() {
+  try {
+    const saved = localStorage.getItem(cartItemsStorageKey);
+    if (!saved) {
+      return [];
+    }
+
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .map(item => ({
+        name: item.name,
+        price: Number(item.price),
+        quantity: Number(item.quantity)
+      }))
+      .filter(item => item.name && Number.isFinite(item.price) && Number.isFinite(item.quantity) && item.quantity > 0);
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveCartItems() {
+  localStorage.setItem(cartItemsStorageKey, JSON.stringify(cartItems));
+}
+
+function addToCart(name, price) {
+  const existing = cartItems.find(item => item.name === name && item.price === price);
+
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cartItems.push({ name, price, quantity: 1 });
+  }
+
+  saveCartItems();
+
+  const updatedItem = cartItems.find(item => item.name === name && item.price === price);
+  return {
+    added: true,
+    quantity: updatedItem ? updatedItem.quantity : 1
+  };
+}
+
+function getSelectedCartItem() {
+  if (!selectedProduct) {
+    return null;
+  }
+
+  return cartItems.find(item => item.name === selectedProduct.name && item.price === selectedProduct.price) || null;
+}
+
+function updateSelectedProductQuantity(quantity) {
+  const nextQuantity = parseInt(quantity, 10);
+  if (!isValidQuantity(nextQuantity)) {
+    return false;
+  }
+
+  const selectedItem = getSelectedCartItem();
+  if (!selectedItem) {
+    return false;
+  }
+
+  selectedItem.quantity = nextQuantity;
+  saveCartItems();
+  saveSelectedQuantity(nextQuantity);
+  renderOrderSummary();
+  updateCartCount();
+  syncCheckoutQuantity();
+  return true;
+}
+
+function hasProductInCart(product) {
+  if (!product) {
+    return false;
+  }
+
+  return cartItems.some(item => item.name === product.name && item.price === product.price);
+}
+
+function syncAfterCartChange() {
+  if (!hasProductInCart(selectedProduct)) {
+    if (cartItems.length > 0) {
+      const lastItem = cartItems[cartItems.length - 1];
+      saveSelectedProduct({ name: lastItem.name, price: lastItem.price });
+      saveSelectedQuantity(lastItem.quantity);
+    } else {
+      selectedProduct = null;
+      selectedQuantity = 1;
+      localStorage.removeItem(selectedProductStorageKey);
+      localStorage.setItem(selectedQuantityStorageKey, "1");
+      updateSelectedProductInfo();
+    }
+  }
+
+  renderOrderSummary();
+  updateCartCount();
+  syncCheckoutQuantity();
+
+  if (cartItems.length === 0) {
+    setCheckoutMessage("Seu carrinho ficou vazio. Escolha uma caneca para continuar.", "info");
+    const checkoutSection = document.getElementById("checkoutSection");
+    if (checkoutSection) {
+      checkoutSection.classList.add("hidden");
+    }
+    return;
+  }
+
+  setCheckoutMessage("Carrinho atualizado com sucesso.", "info");
+}
+
+function updateCartItemQuantity(index, rawValue) {
+  if (index < 0 || index >= cartItems.length) {
+    return;
+  }
+
+  const nextQuantity = parseInt(rawValue, 10);
+  if (!isValidQuantity(nextQuantity)) {
+    setCartMessage("Digite uma quantidade válida (mínimo 1).", "error");
+    renderOrderSummary();
+    syncCheckoutQuantity();
+    return;
+  }
+
+  cartItems[index].quantity = nextQuantity;
+
+  saveCartItems();
+
+  if (selectedProduct && cartItems[index].name === selectedProduct.name && cartItems[index].price === selectedProduct.price) {
+    saveSelectedQuantity(nextQuantity);
+  }
+
+  renderOrderSummary();
+  updateCartCount();
+  syncCheckoutQuantity();
+  setCartMessage("Quantidade atualizada no carrinho.", "info");
+}
+
+function removeCartItem(index) {
+  if (index < 0 || index >= cartItems.length) {
+    return;
+  }
+
+  cartItems.splice(index, 1);
+  saveCartItems();
+  setCartMessage("Produto removido do carrinho.", "info");
+  syncAfterCartChange();
 }
 
 function saveSelectedProduct(product) {
@@ -67,15 +229,17 @@ function saveSelectedQuantity(quantity) {
 function clearSelectedProduct() {
   selectedProduct = null;
   selectedQuantity = 1;
+  cartItems = [];
   localStorage.removeItem(selectedProductStorageKey);
   localStorage.setItem(selectedQuantityStorageKey, "1");
+  localStorage.removeItem(cartItemsStorageKey);
   updateSelectedProductInfo();
 }
 
 function updateClearOrderButtons() {
   const clearOrderButton = document.getElementById("clearOrderButton");
   const clearCheckoutOrderButton = document.getElementById("clearCheckoutOrderButton");
-  const shouldShow = Boolean(selectedProduct);
+  const shouldShow = cartItems.length > 0;
 
   [clearOrderButton, clearCheckoutOrderButton].forEach(button => {
     if (!button) {
@@ -88,29 +252,33 @@ function updateClearOrderButtons() {
 
 function updateSelectedProductInfo() {
   const nameEl = document.getElementById("selectedProductName");
-  const priceEl = document.getElementById("selectedProductPrice");
+  const listEl = document.getElementById("selectedProductsList");
   const quantityEl = document.getElementById("selectedProductQuantity");
   const totalEl = document.getElementById("selectedProductTotal");
   const checkoutTotalEl = document.getElementById("checkoutTotal");
 
-  if (!nameEl || !priceEl || !quantityEl || !totalEl || !checkoutTotalEl) {
+  if (!nameEl || !listEl || !quantityEl || !totalEl || !checkoutTotalEl) {
     return;
   }
 
-  if (!selectedProduct) {
-    nameEl.textContent = "Produto selecionado: nenhum";
-    priceEl.textContent = "Preço unitário: R$ 0";
-    quantityEl.textContent = "Quantidade escolhida: 1 unidade";
+  if (cartItems.length === 0) {
+    nameEl.textContent = "Produtos selecionados: nenhum";
+    listEl.innerHTML = "<li>Nenhum item no carrinho.</li>";
+    quantityEl.textContent = "Quantidade total: 0 unidades";
     totalEl.textContent = "Total final: R$ 0";
     checkoutTotalEl.value = "R$ 0";
     updateClearOrderButtons();
     return;
   }
 
-  const total = getCartTotal();
-  nameEl.textContent = `Produto selecionado: ${selectedProduct.name}`;
-  priceEl.textContent = `Preço unitário: ${formatCurrency(selectedProduct.price)}`;
-  quantityEl.textContent = `Quantidade escolhida: ${selectedQuantity} ${selectedQuantity === 1 ? "unidade" : "unidades"}`;
+  nameEl.textContent = "Produtos selecionados:";
+  listEl.innerHTML = cartItems
+    .map(item => `<li>${item.name} - ${item.quantity} ${item.quantity === 1 ? "unidade" : "unidades"} (${formatCurrency(item.price * item.quantity)})</li>`)
+    .join("");
+
+  const totalItems = getCartQuantity();
+  const total = getCheckoutTotal();
+  quantityEl.textContent = `Quantidade total: ${totalItems} ${totalItems === 1 ? "unidade" : "unidades"}`;
   totalEl.textContent = `Total final: ${formatCurrency(total)}`;
   checkoutTotalEl.value = formatCurrency(total);
   updateClearOrderButtons();
@@ -122,19 +290,30 @@ function renderOrderSummary() {
     return;
   }
 
-  if (!selectedProduct) {
-    summaryEl.innerHTML = '<p class="cart-empty">Nenhum produto selecionado ainda. Escolha uma caneca para continuar.</p>';
+  if (cartItems.length === 0) {
+    summaryEl.innerHTML = '<p class="cart-empty">Nenhum produto no carrinho ainda. Escolha uma caneca para continuar.</p>';
     document.getElementById("total").innerText = "Total: R$ 0";
     updateClearOrderButtons();
     return;
   }
 
+  const listHtml = cartItems
+    .map((item, index) => `
+      <li class="order-summary-item">
+        <span>${item.name}</span>
+        <span>${formatCurrency(item.price * item.quantity)}</span>
+        <span class="order-item-actions">
+          <input type="number" min="1" step="1" class="order-quantity-input" value="${item.quantity}" onchange="updateCartItemQuantity(${index}, this.value)" aria-label="Quantidade de ${item.name}">
+          <button type="button" class="order-remove-button danger" onclick="removeCartItem(${index})">Excluir</button>
+        </span>
+      </li>
+    `)
+    .join("");
+
   const total = getCartTotal();
   summaryEl.innerHTML = `
-    <p class="order-summary-title">${selectedProduct.name}</p>
-    <p class="order-summary-line">Preço unitário: ${formatCurrency(selectedProduct.price)}</p>
-    <p class="order-summary-line">Quantidade: ${selectedQuantity} ${selectedQuantity === 1 ? "unidade" : "unidades"}</p>
-    <p class="order-summary-line">Total final: ${formatCurrency(total)}</p>
+    <p class="order-summary-title">Produtos escolhidos</p>
+    <ul class="order-summary-list">${listHtml}</ul>
   `;
   document.getElementById("total").innerText = "Total: " + formatCurrency(total);
 }
@@ -145,8 +324,8 @@ function clearOrder() {
   updateCartCount();
   syncCheckoutQuantity();
   clearInvalidFields();
-  setCheckoutMessage("Pedido removido. Escolha outra caneca para continuar.", "info");
-  setCartMessage("Pedido removido com sucesso.", "info");
+  setCheckoutMessage("Carrinho removido. Escolha outra caneca para continuar.", "info");
+  setCartMessage("Carrinho removido com sucesso.", "info");
 
   const checkoutSection = document.getElementById("checkoutSection");
   if (checkoutSection) {
@@ -162,54 +341,26 @@ function updateCartCount() {
 
 function syncCheckoutQuantity() {
   const quantityInput = document.getElementById("quantity");
-  const decreaseButton = document.getElementById("decreaseQuantityButton");
-  const increaseButton = document.getElementById("increaseQuantityButton");
 
   if (!quantityInput) {
     return;
   }
 
-  quantityInput.value = `${selectedQuantity} ${selectedQuantity === 1 ? "unidade" : "unidades"}`;
-
-  if (decreaseButton) {
-    decreaseButton.disabled = selectedQuantity <= 1;
-  }
-
-  if (increaseButton) {
-    increaseButton.disabled = selectedQuantity >= 3;
-  }
-}
-
-function decreaseQuantity() {
-  if (selectedQuantity <= 1) {
-    return;
-  }
-
-  saveSelectedQuantity(selectedQuantity - 1);
-  renderOrderSummary();
-  updateCartCount();
-  syncCheckoutQuantity();
-}
-
-function increaseQuantity() {
-  if (selectedQuantity >= 3) {
-    return;
-  }
-
-  saveSelectedQuantity(selectedQuantity + 1);
-  renderOrderSummary();
-  updateCartCount();
-  syncCheckoutQuantity();
+  const totalItems = getCartQuantity();
+  quantityInput.value = `${totalItems} ${totalItems === 1 ? "unidade" : "unidades"}`;
 }
 
 function selectProduct(name, price) {
+  const cartUpdate = addToCart(name, price);
   saveSelectedProduct({ name, price });
-  saveSelectedQuantity(1);
+  saveSelectedQuantity(cartUpdate.quantity);
   renderOrderSummary();
   updateCartCount();
   syncCheckoutQuantity();
+
   setCartMessage("", "");
-  setCheckoutMessage("Produto selecionado com sucesso. Agora escolha de 1 até 3 unidades e finalize seu pedido.", "info");
+  setCheckoutMessage("Produto adicionado ao carrinho com sucesso. Ajuste a quantidade e finalize seu carrinho.", "info");
+
   openCheckout();
 }
 
@@ -218,7 +369,7 @@ function openCart() {
 }
 
 function openCheckout() {
-  if (!selectedProduct) {
+  if (cartItems.length === 0) {
     setCartMessage("Escolha uma caneca antes de seguir para o checkout.", "error");
     scrollToProducts();
     return;
@@ -258,11 +409,6 @@ function clearInvalidFields() {
   document.querySelectorAll("#checkoutForm input, #checkoutForm textarea").forEach(field => {
     field.classList.remove("invalid");
   });
-
-  const quantityPicker = document.getElementById("quantityPicker");
-  if (quantityPicker) {
-    quantityPicker.classList.remove("invalid");
-  }
 }
 
 function markInvalid(fieldId) {
@@ -296,13 +442,13 @@ function maskPhone(value) {
 function validateCheckoutForm(data) {
   clearInvalidFields();
 
-  if (!selectedProduct) {
-    return "Escolha uma caneca antes de finalizar o pedido.";
+  if (cartItems.length === 0) {
+    return "Escolha uma caneca antes de finalizar o carrinho.";
   }
 
-  if (!isValidQuantity(selectedQuantity)) {
-    markInvalid("quantityPicker");
-    return "Escolha uma quantidade válida: 1, 2 ou 3 unidades.";
+  if (!isValidQuantity(getCartQuantity())) {
+    markInvalid("quantity");
+    return "Escolha uma quantidade válida (mínimo de 1 unidade).";
   }
 
   if (!data.fullName) {
@@ -328,21 +474,31 @@ function validateCheckoutForm(data) {
   return "";
 }
 
-// Gera um identificador simples e unico para o pedido sem backend.
+// Gera um identificador simples e unico para o carrinho sem backend.
 function generateOrderCode() {
   return "CANECA-" + Date.now().toString().slice(-6);
 }
 
 function getPaymentKey() {
-  return `${selectedProduct.price}-${selectedQuantity}`;
+  if (cartItems.length !== 1) {
+    return "";
+  }
+
+  const item = cartItems[0];
+  return `${item.price}-${item.quantity}`;
 }
 
-function buildOrderData(data, codigoPedido, total) {
+function buildOrderData(data, codigoCarrinho, total) {
+  const itemsDescription = cartItems
+    .map(item => `${item.name} (${item.quantity}x) - ${formatCurrency(item.price * item.quantity)}`)
+    .join(" | ");
+
   return {
-    codigoPedido,
-    produto: selectedProduct.name,
-    precoUnitario: selectedProduct.price,
-    quantidade: selectedQuantity,
+    codigoCarrinho,
+    produto: cartItems.length === 1 ? cartItems[0].name : "Carrinho com múltiplos produtos",
+    precoUnitario: cartItems.length === 1 ? cartItems[0].price : "Vários",
+    quantidade: getCartQuantity(),
+    itensCarrinho: itemsDescription,
     total,
     nomeCompleto: data.fullName,
     telefone: data.phone,
@@ -351,6 +507,16 @@ function buildOrderData(data, codigoPedido, total) {
     complemento: data.complement || "",
     observacoes: data.notes || ""
   };
+}
+
+function getCheckoutItemsSummaryText() {
+  if (cartItems.length === 0) {
+    return "";
+  }
+
+  return cartItems
+    .map(item => `${item.name} (${item.quantity}x)`)
+    .join(" | ");
 }
 
 async function sendOrder(orderData) {
@@ -371,7 +537,7 @@ async function sendOrder(orderData) {
   });
 
   if (!response.ok) {
-    throw new Error("Falha ao enviar pedido");
+    throw new Error("Falha ao enviar carrinho");
   }
 }
 
@@ -396,31 +562,35 @@ async function handleCheckoutSubmit(event) {
     return;
   }
 
-  const total = getCartTotal();
+  const total = getCheckoutTotal();
   const paymentLink = linksPagamento[getPaymentKey()];
-  if (!paymentLink) {
-    setCheckoutMessage("Ainda não temos link de pagamento para essa opção. Por favor, escolha outra quantidade.", "error");
-    return;
-  }
 
-  const codigoPedido = generateOrderCode();
-  const orderData = buildOrderData(checkoutData, codigoPedido, total);
+  const codigoCarrinho = generateOrderCode();
+  const orderData = buildOrderData(checkoutData, codigoCarrinho, total);
 
   try {
     submitButton.disabled = true;
-    submitButton.textContent = "Enviando pedido...";
-    setCheckoutMessage("Estamos enviando seu pedido. Aguarde alguns segundos.", "info");
+    submitButton.textContent = "Enviando carrinho...";
+    setCheckoutMessage("Estamos enviando seu carrinho. Aguarde alguns segundos.", "info");
 
     await sendOrder(orderData);
 
-    setCheckoutMessage("Pedido enviado com sucesso. Você será redirecionado para o pagamento.", "success");
-    setTimeout(() => {
-      window.location.href = paymentLink;
-    }, 1600);
+    const itemsSummary = getCheckoutItemsSummaryText();
+
+    if (paymentLink) {
+      setCheckoutMessage(`Carrinho enviado com sucesso. Itens: ${itemsSummary}. Você será redirecionado para o pagamento.`, "success");
+      setTimeout(() => {
+        window.location.href = paymentLink;
+      }, 2200);
+    } else {
+      setCheckoutMessage(`Carrinho enviado com sucesso. Itens: ${itemsSummary}. Entraremos em contato para finalizar o pagamento.`, "success");
+      submitButton.disabled = false;
+      submitButton.textContent = "Finalizar carrinho";
+    }
   } catch (error) {
-    setCheckoutMessage("Não foi possível enviar seu pedido agora. Verifique sua conexão e tente novamente.", "error");
+    setCheckoutMessage("Não foi possível enviar seu carrinho agora. Verifique sua conexão e tente novamente.", "error");
     submitButton.disabled = false;
-    submitButton.textContent = "Finalizar pedido";
+    submitButton.textContent = "Finalizar carrinho";
   }
 }
 
