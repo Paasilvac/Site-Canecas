@@ -1,6 +1,6 @@
 🛍️ Site de Canecas Geek
 
-Landing page simples com foco em vendas via WhatsApp.
+Landing page estilo e-commerce com foco em vendas via WhatsApp.
 
 🚀 Tecnologias
 - HTML
